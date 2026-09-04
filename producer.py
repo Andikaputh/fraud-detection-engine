@@ -6,7 +6,7 @@ from datetime import datetime
 
 # Menyambungkan Python ke mesin Kafka (Redpanda) lokal
 producer = KafkaProducer(
-    bootstrap_servers=['localhost:9092'],
+    bootstrap_servers=['127.0.0.1:9092'],
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
@@ -30,7 +30,8 @@ while True:
     }
 
     # Mengirim data ke Kafka
-    producer.send(topic_name, value=data)
+    producer.send(topic_name, value=data).get(timeout=10)
+    producer.flush()
     print(f"Terkirim: {data}")
     
     # Jeda 2 detik sebelum membuat transaksi berikutnya
