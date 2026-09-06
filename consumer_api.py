@@ -5,15 +5,18 @@ import joblib
 import pandas as pd
 import threading
 import requests
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = FastAPI()
 
 model = joblib.load('anomaly_model.pkl')
 latest_data = {"status": "Belum ada aliran data masuk"}
 
-# --- KONFIGURASI TELEGRAM ---
-TELEGRAM_TOKEN = "8974888802:AAHVeA--ysGJg3b1ZUsAHy_8bQ6glc7pHoQ"
-CHAT_ID = "1144968384"
+# Mengambil token dari environment
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 def send_telegram_alert(jumlah, lokasi):
     """Fungsi menembakkan pesan peringatan ke Telegram"""
