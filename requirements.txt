@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+kafka-python
+pandas
+scikit-learn
+joblib
+requests
+python-dotenv
+sqlalchemy
+streamlit

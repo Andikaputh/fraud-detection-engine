@@ -3,10 +3,12 @@ import time
 import random
 from kafka import KafkaProducer
 from datetime import datetime
+import os
 
-# Menyambungkan Python ke mesin Kafka (Redpanda) lokal
+kafka_server = os.getenv('KAFKA_BOOTSTRAP_SERVERS', '127.0.0.1:9092')
+
 producer = KafkaProducer(
-    bootstrap_servers=['127.0.0.1:9092'],
+    bootstrap_servers=[kafka_server],
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
