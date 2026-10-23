@@ -1,2 +1,55 @@
-env/
+# ------------------------------------------------------------------------------
+# Secrets and local configuration
+# ------------------------------------------------------------------------------
 .env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------------------------
+# Python
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ------------------------------------------------------------------------------
+# Runtime data and local databases
+# ------------------------------------------------------------------------------
+data/*.db
+data/*.db-*
+data/*.sqlite
+data/*.sqlite-*
+data/*.db-journal
+*.db-wal
+*.db-shm
+
+# ------------------------------------------------------------------------------
+# Frontend
+# ------------------------------------------------------------------------------
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+
+# Puppeteer / screenshots are generated outside the repository
+.screenshot-cache/
+
+# ------------------------------------------------------------------------------
+# Logs, OS and editor files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp

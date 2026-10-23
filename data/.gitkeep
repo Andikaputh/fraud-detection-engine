@@ -1,0 +1,2 @@
+This directory holds the runtime SQLite database. The file is created on first
+start and is intentionally excluded from git.

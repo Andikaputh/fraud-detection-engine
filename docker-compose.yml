@@ -1,49 +1,69 @@
-services:
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:v23.2.1
-    container_name: fraud_redpanda
-    command:
-      - redpanda start
-      - --smp 1
-      - --memory 1G
-      - --reserve-memory 0M
-      - --overprovisioned
-      - --node-id 0
-      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
-      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
-    ports:
-      - "9092:9092"
-      - "9644:9644"
-
-  api:
-    build: .
-    container_name: fraud_api
-    command: uvicorn consumer_api:app --host 0.0.0.0 --port 8000
+﻿services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentinel-fraud-engine:local
     ports:
       - "8000:8000"
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=redpanda:29092
-    env_file:
-      - .env
-    depends_on:
-      - redpanda
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      INGEST_MODE: ${INGEST_MODE:-simulator}
+      INGEST_FALLBACK: ${INGEST_FALLBACK:-simulator}
+      SIMULATOR_TPS: ${SIMULATOR_TPS:-0.2}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      RETENTION_DAYS: ${RETENTION_DAYS:-7}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/sentinel.db}
+      MODEL_DIR: /app/artifacts
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-redpanda:29092}
+      KAFKA_TOPIC: ${KAFKA_TOPIC:-transaksi-finansial}
+      KAFKA_GROUP: ${KAFKA_GROUP:-sentinel-scoring-v1}
+      SENTINEL_API_KEY: ${SENTINEL_API_KEY:-}
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN:-}
+      CHAT_ID: ${CHAT_ID:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+    volumes:
+      - sentinel-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  producer:
-    build: .
-    container_name: fraud_producer
-    command: python producer.py
-    environment:
-      - KAFKA_BOOTSTRAP_SERVERS=redpanda:29092
-    depends_on:
+  # Optional Kafka-compatible broker for the producer demo:
+  #   docker compose --profile kafka up -d
+  # Then set INGEST_MODE=kafka and KAFKA_BOOTSTRAP_SERVERS=redpanda:29092.
+  redpanda:
+    image: redpandadata/redpanda:latest
+    profiles: ["kafka"]
+    command:
       - redpanda
-
-  dashboard:
-    build: .
-    container_name: fraud_dashboard
-    command: streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 512M
+      - --reserve-memory
+      - 0M
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:29092,OUTSIDE://127.0.0.1:9092
     ports:
-      - "8501:8501"
-    environment:
-      - API_URL=http://api:8000
-    depends_on:
-      - api
+      - "9092:9092"
+      - "9644:9644"
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+volumes:
+  sentinel-data:
+  redpanda-data:
+

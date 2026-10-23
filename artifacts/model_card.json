@@ -1,0 +1,167 @@
+{
+  "version": "iforest-2026.02",
+  "algorithm": "IsolationForest",
+  "library": "scikit-learn",
+  "trained_at": "2026-10-22T10:24:26+00:00",
+  "training_rows": 18900,
+  "anomaly_fraction": 0.045,
+  "n_estimators": 220,
+  "feature_names": [
+    "log_amount",
+    "log_amount_ratio",
+    "amount_z",
+    "velocity_1m",
+    "velocity_10m",
+    "log_geo_speed",
+    "new_device",
+    "hour_sin",
+    "hour_cos",
+    "merchant_risk",
+    "ip_country_mismatch",
+    "channel_risk",
+    "log_account_age",
+    "chargebacks",
+    "distinct_countries_24h",
+    "is_disposable_email"
+  ],
+  "calibration": {
+    "p50": -0.131209,
+    "p99": -0.008679,
+    "p999": 0.052418
+  },
+  "metrics": {
+    "roc_auc": 0.9801,
+    "pr_auc": 0.945,
+    "precision_at_best_f1": 0.9059,
+    "recall_at_best_f1": 0.8662,
+    "best_f1": 0.8856,
+    "decision_threshold": 60,
+    "tpr_at_1pct_fpr": 0.83,
+    "holdout_rows": 4800,
+    "precision_recall_curve": [
+      {
+        "threshold": 60,
+        "precision": 0.9059,
+        "recall": 0.8662
+      },
+      {
+        "threshold": 70,
+        "precision": 0.9455,
+        "recall": 0.8237
+      },
+      {
+        "threshold": 75,
+        "precision": 0.9604,
+        "recall": 0.7887
+      },
+      {
+        "threshold": 80,
+        "precision": 0.9725,
+        "recall": 0.7525
+      },
+      {
+        "threshold": 85,
+        "precision": 0.9798,
+        "recall": 0.7275
+      },
+      {
+        "threshold": 90,
+        "precision": 0.9821,
+        "recall": 0.685
+      }
+    ],
+    "evaluation": "synthetic holdout"
+  },
+  "feature_importance": [
+    {
+      "feature": "new_device",
+      "importance": 0.00816,
+      "weight": 12.4
+    },
+    {
+      "feature": "log_account_age",
+      "importance": 0.00609,
+      "weight": 9.2
+    },
+    {
+      "feature": "ip_country_mismatch",
+      "importance": 0.00498,
+      "weight": 7.6
+    },
+    {
+      "feature": "amount_z",
+      "importance": 0.00493,
+      "weight": 7.5
+    },
+    {
+      "feature": "hour_cos",
+      "importance": 0.00479,
+      "weight": 7.3
+    },
+    {
+      "feature": "hour_sin",
+      "importance": 0.00431,
+      "weight": 6.5
+    },
+    {
+      "feature": "log_amount_ratio",
+      "importance": 0.00422,
+      "weight": 6.4
+    },
+    {
+      "feature": "log_amount",
+      "importance": 0.00417,
+      "weight": 6.3
+    },
+    {
+      "feature": "chargebacks",
+      "importance": 0.00416,
+      "weight": 6.3
+    },
+    {
+      "feature": "merchant_risk",
+      "importance": 0.004,
+      "weight": 6.1
+    },
+    {
+      "feature": "channel_risk",
+      "importance": 0.00387,
+      "weight": 5.9
+    },
+    {
+      "feature": "velocity_1m",
+      "importance": 0.00337,
+      "weight": 5.1
+    },
+    {
+      "feature": "log_geo_speed",
+      "importance": 0.00317,
+      "weight": 4.8
+    },
+    {
+      "feature": "velocity_10m",
+      "importance": 0.00286,
+      "weight": 4.3
+    },
+    {
+      "feature": "is_disposable_email",
+      "importance": 0.00143,
+      "weight": 2.2
+    },
+    {
+      "feature": "distinct_countries_24h",
+      "importance": 0.00136,
+      "weight": 2.1
+    }
+  ],
+  "score_distribution": {
+    "p50": 2.37,
+    "p90": 99.86,
+    "p99": 100.0
+  },
+  "limitations": [
+    "Trained on synthetic data; not a substitute for chargeback-labelled production data.",
+    "Scores are relative to the training population and require periodic recalibration.",
+    "No device-fingerprint or consortium signals are included in this build."
+  ]
+}

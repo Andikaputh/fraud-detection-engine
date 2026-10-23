@@ -1,0 +1,24 @@
+﻿services:
+  - type: web
+    name: sentinel-fraud-engine
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: INGEST_MODE
+        value: simulator
+      - key: SIMULATOR_TPS
+        value: "0.2"
+      - key: SEED_DEMO_DATA
+        value: "true"
+      - key: RETENTION_DAYS
+        value: "7"
+

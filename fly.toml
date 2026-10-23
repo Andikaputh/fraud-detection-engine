@@ -1,0 +1,42 @@
+﻿# Rename the app before deploying if the name is already taken:
+#   fly apps create <your-unique-name>
+# and update `app` below. Then create the volume once:
+#   fly volumes create sentinel_data --region sin --size 1
+app = "sentinel-fraud-engine"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ENVIRONMENT = "production"
+  DEMO_MODE = "true"
+  INGEST_MODE = "simulator"
+  SIMULATOR_TPS = "0.2"
+  SEED_DEMO_DATA = "true"
+  RETENTION_DAYS = "7"
+  DATABASE_URL = "sqlite:////app/data/sentinel.db"
+  MODEL_DIR = "/app/artifacts"
+  PORT = "8000"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 200
+    soft_limit = 120
+
+[[mounts]]
+  source = "sentinel_data"
+  destination = "/app/data"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+
