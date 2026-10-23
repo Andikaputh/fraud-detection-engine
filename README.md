@@ -1,6 +1,6 @@
 # Sentinel Fraud Engine
 
-**Real-time transaction risk decisioning, alert triage, and model observability — as a single deployable application.**
+**Real-time transaction risk decisioning, alert triage, and model observability as a single deployable application.**
 
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
@@ -213,11 +213,11 @@ Every review or block produces an alert with the full transaction, reasons, feat
 
 ### Schema
 
-- `transactions` — immutable decision record, including the raw feature vector, reason codes, model version, decision, label, and latency.
-- `alerts` — queue state: severity, status, assignee, note, resolved timestamp.
-- `audit_events` — append-only operator/system history for alerts, settings, reset, and ingestion.
-- `engine_settings` — persisted thresholds and simulator rate.
-- `model_versions` — active model metadata and metric snapshots.
+- `transactions`: immutable decision record, including the raw feature vector, reason codes, model version, decision, label, and latency.
+- `alerts`: queue state, including severity, status, assignee, note, and resolved timestamp.
+- `audit_events`: append-only operator/system history for alerts, settings, reset, and ingestion.
+- `engine_settings`: persisted thresholds and simulator rate.
+- `model_versions`: active model metadata and metric snapshots.
 
 ### Write path
 
@@ -237,7 +237,7 @@ PostgreSQL is supported by changing `DATABASE_URL`. The schema is created on boo
 
 A fresh installation needs history for the charts, prior-period KPIs, and a populated alert queue. On first boot Sentinel starts the API immediately, starts the simulator **paused**, and seeds seven days of history at a uniform average of roughly 13,500 authorisations per day (about 94,000 rows after injected bursts). A consistent density matters: a dense recent block followed by a sparse tail creates a cliff in the 7-day chart and in daily model drift, which reads as an outage rather than a deliberate retention boundary.
 
-The live simulator defaults to **0.2 authorisations/second**, slightly above the historical average, so the feed keeps moving while the seeded footprint stays bounded. The rate is configurable; bursts of 7–12 card-testing events are injected periodically to exercise velocity rules.
+The live simulator defaults to **0.2 authorisations/second**, slightly above the historical average, so the feed keeps moving while the seeded footprint stays bounded. The rate is configurable; bursts of 7-12 card-testing events are injected periodically to exercise velocity rules.
 
 The backfill runs through the real feature store and scoring pipeline, not a synthetic INSERT of fake scores. It is a background thread. The console polls `/api/v1/backfill` and displays a progress banner with the number of authorisations scored. When the seed completes, the simulator resumes. A cold start therefore stays healthy within a second while the baseline fills in behind it.
 
@@ -246,10 +246,10 @@ The same job powers **Settings → Rebuild demo environment**, which clears the 
 Approximate local timings on the development machine used for the screenshots:
 
 - API health on an empty database: < 1 second;
-- full seven-day backfill: ~35–50 seconds;
+- full seven-day backfill: ~35-50 seconds;
 - peak RSS during backfill: ~430 MB;
 - database size after seed: ~140 MB;
-- restart with an existing database: ~10–15 seconds while feature state and the two default aggregates are warmed.
+- restart with an existing database: ~10-15 seconds while feature state and the two default aggregates are warmed.
 
 These numbers are a development baseline, not an SLA. `SEED_DEMO_DATA=false` skips the seed entirely on memory-constrained hosts.
 
@@ -348,18 +348,18 @@ curl -X PATCH http://localhost:8000/api/v1/alerts/alt_123 \
 
 The console is a React 19 + TypeScript + Vite application served from the same origin as the API.
 
-- **Overview** — rolling KPIs, authorisation/block/review series, risk-band donut, live transaction feed, active alerts, system health, top reasons, merchant exposure.
-- **Alert queue** — default unresolved queue, severity/status tabs, search, time filters, assignment and status transitions, full evidence drawer, audit timeline.
-- **Analytics** — decision volume, risk histogram, model drift by day, category performance, reason mix, label metrics with explicit synthetic-data caveat.
-- **Model** — model card, holdout metrics, feature importance, calibration thresholds, version history, and a what-if scorer.
-- **Settings** — review/block thresholds, amount sensitivity, velocity limits, auto-block, simulator rate, Telegram/webhook configuration, operator identity, API key, and demo reset.
+- **Overview**: rolling KPIs, authorisation/block/review series, risk-band donut, live transaction feed, active alerts, system health, top reasons, merchant exposure.
+- **Alert queue**: default unresolved queue, severity/status tabs, search, time filters, assignment and status transitions, full evidence drawer, audit timeline.
+- **Analytics**: decision volume, risk histogram, model drift by day, category performance, reason mix, label metrics with explicit synthetic-data caveat.
+- **Model**: model card, holdout metrics, feature importance, calibration thresholds, version history, and a what-if scorer.
+- **Settings**: review/block thresholds, amount sensitivity, velocity limits, auto-block, simulator rate, Telegram/webhook configuration, operator identity, API key, and demo reset.
 
 The visual system is hand-written CSS with custom SVG charts. There is no chart library, no component framework, and no external runtime dependency beyond React, React Router, and a bundled Inter variable font.
 
 Keyboard:
 
-- `Cmd/Ctrl + K` — command palette.
-- `Esc` — close palette, drawer, or toast.
+- `Cmd/Ctrl + K`: command palette.
+- `Esc`: close palette, drawer, or toast.
 - Time windows are URL-independent and reset on navigation by design; the alert `focus` parameter is preserved in the query string.
 
 All timestamps are rendered in UTC, matching the clock in the top bar. Relative times (`2m ago`) are computed against the browser clock.
@@ -519,12 +519,12 @@ No migration step is required: the schema is created on boot. For production, re
 
 The system is engineered for a modest but continuous stream, not for claims of horizontal scale.
 
-- **Single-event path** — normalisation, feature update, forest traversal, rules, persistence decision. Local warm-process p50 is roughly 1.5–2 ms; p95 is around 3 ms when no aggregate scan is running. The console reports the live distribution.
-- **Batch backfill** — one `decision_function` call per 6,000-row chunk, SQLAlchemy Core `executemany` writes, and queue back-pressure to keep RSS bounded.
-- **SSE** — per-subscriber bounded queues; slow clients lose old frames instead of blocking scoring.
-- **Write path** — 250-row batches or 400 ms flush, WAL mode, single writer thread.
-- **Read path** — narrow column projections and per-view aggregate caches (30 seconds for overview, 120 seconds for analytics), warmed after a backfill and on restart. In-memory read-after-write is used for the HTTP ingestion response.
-- **Retention** — a bounded cleanup job prevents unbounded SQLite growth.
+- **Single-event path**: normalisation, feature update, forest traversal, rules, persistence decision. Local warm-process p50 is roughly 1.5-2 ms; p95 is around 3 ms when no aggregate scan is running. The console reports the live distribution.
+- **Batch backfill**: one `decision_function` call per 6,000-row chunk, SQLAlchemy Core `executemany` writes, and queue back-pressure to keep RSS bounded.
+- **SSE**: per-subscriber bounded queues; slow clients lose old frames instead of blocking scoring.
+- **Write path**: 250-row batches or 400 ms flush, WAL mode, single writer thread.
+- **Read path**: narrow column projections and per-view aggregate caches (30 seconds for overview, 120 seconds for analytics), warmed after a backfill and on restart. In-memory read-after-write is used for the HTTP ingestion response.
+- **Retention**: a bounded cleanup job prevents unbounded SQLite growth.
 
 A cold seven-day analytics scan takes a few seconds and shares the GIL with scoring in this single-process build, so tail latency can spike while it runs. The cache and warm-up keep that work off the normal first-page path; a production deployment should move read aggregations to a separate service or pre-aggregated tables. There is no load-test harness in the repository. The latency numbers above are development observations, not a production benchmark. A real deployment should add k6/Locust, p99 SLOs, database connection pooling, and a shared cache before making capacity claims.
 
@@ -579,7 +579,7 @@ Do not process real card data with this repository as-is. If you adapt it, start
 | Compliance | PCI, SOC 2, regional controls | None claimed |
 | Scale | Multi-region, sharded, stream processors | Single process, single writer |
 
-The honest summary: Sentinel demonstrates the **shape** of a commercial fraud platform — decisioning, evidence, triage, observability, and deployment — while deliberately stopping at the boundaries where a real platform needs organisational, regulatory, and infrastructure work.
+The honest summary: Sentinel demonstrates the **shape** of a commercial fraud platform, covering decisioning, evidence, triage, observability, and deployment, while deliberately stopping at the boundaries where a real platform needs organisational, regulatory, and infrastructure work.
 
 ---
 

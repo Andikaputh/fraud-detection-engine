@@ -235,7 +235,7 @@ export function Model() {
         <div className="page-header-actions">
           <div className="header-stat">
             <span>Active version</span>
-            <strong className="mono">{card?.version || "—"}</strong>
+            <strong className="mono">{card?.version || "N/A"}</strong>
           </div>
           <div className="header-stat">
             <span>EST. compute</span>
@@ -452,7 +452,7 @@ export function Model() {
                 <div><dt>Calibration p50</dt><dd className="mono">{card.calibration.p50.toFixed(4)}</dd></div>
                 <div><dt>Calibration p99</dt><dd className="mono">{card.calibration.p99.toFixed(4)}</dd></div>
                 <div><dt>Calibration p99.9</dt><dd className="mono">{card.calibration.p999.toFixed(4)}</dd></div>
-                <div><dt>Artifact</dt><dd>{model.data ? formatBytes(model.data.artifact.size_bytes) : "—"}</dd></div>
+                <div><dt>Artifact</dt><dd>{model.data ? formatBytes(model.data.artifact.size_bytes) : "N/A"}</dd></div>
               </dl>
             ) : (
               <Skeleton rows={7} />
@@ -502,10 +502,10 @@ export function Model() {
                       <td>{formatDateTime(version.trained_at)}</td>
                       <td className="align-right mono">{formatNumber(version.training_rows)}</td>
                       <td className="align-right mono">
-                        {typeof version.metrics.roc_auc === "number" ? version.metrics.roc_auc.toFixed(4) : "—"}
+                        {typeof version.metrics.roc_auc === "number" ? version.metrics.roc_auc.toFixed(4) : "N/A"}
                       </td>
                       <td className="align-right mono">
-                        {typeof version.metrics.pr_auc === "number" ? version.metrics.pr_auc.toFixed(4) : "—"}
+                        {typeof version.metrics.pr_auc === "number" ? version.metrics.pr_auc.toFixed(4) : "N/A"}
                       </td>
                       <td>
                         <span className={`status-badge ${version.is_active ? "resolved" : "open"}`}>

@@ -35,7 +35,7 @@ export function Panel({
 }
 
 export function Delta({ value, invert = false }: { value: number | null; invert?: boolean }) {
-  if (value === null || value === undefined) return <span className="delta flat">—</span>;
+  if (value === null || value === undefined) return <span className="delta flat">N/A</span>;
   const positive = value > 0;
   const good = invert ? !positive : positive;
   const Icon = positive ? ArrowUpRightIcon : ArrowDownRightIcon;

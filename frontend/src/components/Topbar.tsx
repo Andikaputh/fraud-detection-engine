@@ -139,7 +139,7 @@ export function Topbar({
               <button onClick={() => fire("stolen_card", 3, "Stolen card")}>
                 <span>
                   <strong>Stolen card</strong>
-                  <small>Risky merchant, 8–48M IDR</small>
+                  <small>Risky merchant, 8-48M IDR</small>
                 </span>
                 <span className="kbd-hint">CNP</span>
               </button>

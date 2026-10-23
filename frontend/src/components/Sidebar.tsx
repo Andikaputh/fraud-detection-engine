@@ -126,11 +126,11 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             </div>
             <div>
               <dt>Uptime</dt>
-              <dd>{system ? formatDuration(system.pipeline.uptime_seconds) : "—"}</dd>
+              <dd>{system ? formatDuration(system.pipeline.uptime_seconds) : "N/A"}</dd>
             </div>
             <div>
               <dt>Scored</dt>
-              <dd>{system ? formatNumber(system.pipeline.processed, true) : "—"}</dd>
+              <dd>{system ? formatNumber(system.pipeline.processed, true) : "N/A"}</dd>
             </div>
           </dl>
           <div className="system-card-foot">

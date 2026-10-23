@@ -105,22 +105,22 @@ export function Analytics() {
           <>
             <KpiCard
               label="Detection precision"
-              value={metrics ? formatPercent(metrics.precision) : "—"}
+              value={metrics ? formatPercent(metrics.precision) : "N/A"}
               sub={metrics ? `${formatNumber(metrics.tp)} true positives` : "No labelled rows in window"}
             />
             <KpiCard
               label="Detection recall"
-              value={metrics ? formatPercent(metrics.recall) : "—"}
+              value={metrics ? formatPercent(metrics.recall) : "N/A"}
               sub={metrics ? `${formatNumber(metrics.fn)} fraud missed` : "No labelled rows in window"}
             />
             <KpiCard
               label="F1 score"
-              value={metrics ? formatPercent(metrics.f1) : "—"}
+              value={metrics ? formatPercent(metrics.f1) : "N/A"}
               sub="Review + block treated as flagged"
             />
             <KpiCard
               label="False positive rate"
-              value={metrics ? formatPercent(metrics.false_positive_rate) : "—"}
+              value={metrics ? formatPercent(metrics.false_positive_rate) : "N/A"}
               sub={metrics ? `${formatNumber(metrics.fp)} legitimate rows flagged` : "No labelled rows in window"}
             />
           </>
@@ -378,7 +378,7 @@ export function Analytics() {
         </div>
         <div>
           <span className="summary-label">Snapshot</span>
-          <strong className="summary-time">{data ? formatTime(data.generated_at) : "—"}</strong>
+          <strong className="summary-time">{data ? formatTime(data.generated_at) : "N/A"}</strong>
           <small>
             <ClockIcon size={11} /> refreshed every 20 seconds
           </small>

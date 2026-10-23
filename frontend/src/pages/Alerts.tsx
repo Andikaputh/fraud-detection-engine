@@ -109,15 +109,15 @@ export function Alerts() {
         <div className="page-header-actions">
           <div className="header-stat">
             <span>Unresolved critical</span>
-            <strong>{stats.data?.open_critical ?? "—"}</strong>
+            <strong>{stats.data?.open_critical ?? "N/A"}</strong>
           </div>
           <div className="header-stat">
             <span>Oldest open</span>
-            <strong>{stats.data ? formatDuration(stats.data.oldest_open_minutes * 60) : "—"}</strong>
+            <strong>{stats.data ? formatDuration(stats.data.oldest_open_minutes * 60) : "N/A"}</strong>
           </div>
           <div className="header-stat">
             <span>Closed 24h</span>
-            <strong>{stats.data?.resolved_24h ?? "—"}</strong>
+            <strong>{stats.data?.resolved_24h ?? "N/A"}</strong>
           </div>
         </div>
       </header>
@@ -143,7 +143,7 @@ export function Alerts() {
           <strong>
             {stats.data
               ? `${((stats.data.false_positive / Math.max(stats.data.false_positive + stats.data.resolved, 1)) * 100).toFixed(1)}%`
-              : "—"}
+              : "N/A"}
           </strong>
           <span className="queue-sub">of closed alerts</span>
         </div>
@@ -159,7 +159,7 @@ export function Alerts() {
                 onClick={() => setStatus(tab.value)}
               >
                 {tab.label}
-                <span>{typeof tab.count === "number" ? formatNumber(tab.count, true) : "—"}</span>
+                <span>{typeof tab.count === "number" ? formatNumber(tab.count, true) : "N/A"}</span>
               </button>
             ))}
           </div>
@@ -229,14 +229,14 @@ export function Alerts() {
                       <div className="cell-sub mono">{shortId(alert.transaction_id, 10)}</div>
                     </td>
                     <td>
-                      <div className="cell-primary">{alert.transaction?.merchant_name || "—"}</div>
+                      <div className="cell-primary">{alert.transaction?.merchant_name || "N/A"}</div>
                       <div className="cell-sub">
-                        {alert.transaction ? `${titleCase(alert.transaction.merchant_category)} · ${alert.transaction.merchant_country}` : "—"}
+                        {alert.transaction ? `${titleCase(alert.transaction.merchant_category)} · ${alert.transaction.merchant_country}` : "N/A"}
                       </div>
                     </td>
-                    <td className="mono">{alert.transaction?.customer_id || "—"}</td>
+                    <td className="mono">{alert.transaction?.customer_id || "N/A"}</td>
                     <td className="align-right mono amount-cell">
-                      {alert.transaction ? formatIDR(alert.transaction.amount) : "—"}
+                      {alert.transaction ? formatIDR(alert.transaction.amount) : "N/A"}
                     </td>
                     <td>
                       <RiskPill score={alert.risk_score} />
@@ -260,7 +260,7 @@ export function Alerts() {
         {meta ? (
           <div className="pagination">
             <span>
-              Showing {(meta.page - 1) * meta.page_size + 1}–{Math.min(meta.page * meta.page_size, meta.total)} of{" "}
+              Showing {(meta.page - 1) * meta.page_size + 1}-{Math.min(meta.page * meta.page_size, meta.total)} of{" "}
               {formatNumber(meta.total)} alerts
             </span>
             <div>

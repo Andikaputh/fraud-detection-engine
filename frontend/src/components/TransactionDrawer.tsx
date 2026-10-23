@@ -85,16 +85,16 @@ function TransactionContent({ data, onClose }: { data: { transaction: Transactio
         <Rows
           items={[
             { label: "Transaction ID", value: transaction.id },
-            { label: "External ID", value: transaction.external_id || "—" },
+            { label: "External ID", value: transaction.external_id || "N/A" },
             { label: "Merchant", value: transaction.merchant_name },
             { label: "Category", value: titleCase(transaction.merchant_category) },
             { label: "Country", value: transaction.merchant_country },
             { label: "Channel", value: titleCase(transaction.channel) },
             { label: "Customer", value: transaction.customer_id },
-            { label: "Card", value: transaction.card_id || "—" },
-            { label: "Device", value: transaction.device_id || "—" },
-            { label: "IP country", value: transaction.ip_country || "—" },
-            { label: "Email domain", value: transaction.email_domain || "—" },
+            { label: "Card", value: transaction.card_id || "N/A" },
+            { label: "Device", value: transaction.device_id || "N/A" },
+            { label: "IP country", value: transaction.ip_country || "N/A" },
+            { label: "Email domain", value: transaction.email_domain || "N/A" },
             {
               label: "Created",
               value: `${formatTime(transaction.created_at)} · ${relativeTime(transaction.created_at, now)}`,

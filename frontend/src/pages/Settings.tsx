@@ -147,7 +147,7 @@ export function Settings() {
 
   const delivery = system.data?.delivery;
   const storage = system.data?.storage;
-  const mode = settings.data?.ingest_mode ?? "—";
+  const mode = settings.data?.ingest_mode ?? "N/A";
 
   const thresholdMarkers = useMemo(
     () => [
@@ -210,9 +210,9 @@ export function Settings() {
                   ))}
                 </div>
                 <div className="threshold-legend">
-                  <span><i className="dot allow" />Allow 0–{review}</span>
-                  <span><i className="dot review" />Review {review}–{block}</span>
-                  <span><i className="dot block" />Block {block}–100</span>
+                  <span><i className="dot allow" />Allow 0-{review}</span>
+                  <span><i className="dot review" />Review {review}-{block}</span>
+                  <span><i className="dot block" />Block {block}-100</span>
                 </div>
               </div>
 
@@ -271,7 +271,7 @@ export function Settings() {
                   >
                     {AMOUNT_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
-                        {option.label} — high-value screening begins here
+                        {option.label}: high-value screening begins here
                       </option>
                     ))}
                   </select>

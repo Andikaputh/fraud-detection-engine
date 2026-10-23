@@ -151,23 +151,23 @@ export function AlertDrawer({
               </div>
               <div>
                 <dt>External order</dt>
-                <dd>{transaction.external_id || "—"}</dd>
+                <dd>{transaction.external_id || "N/A"}</dd>
               </div>
               <div>
                 <dt>Card</dt>
-                <dd className="mono">{transaction.card_id || "—"}</dd>
+                <dd className="mono">{transaction.card_id || "N/A"}</dd>
               </div>
               <div>
                 <dt>Device</dt>
-                <dd className="mono">{transaction.device_id || "—"}</dd>
+                <dd className="mono">{transaction.device_id || "N/A"}</dd>
               </div>
               <div>
                 <dt>IP country</dt>
-                <dd>{transaction.ip_country || "—"}</dd>
+                <dd>{transaction.ip_country || "N/A"}</dd>
               </div>
               <div>
                 <dt>Email domain</dt>
-                <dd>{transaction.email_domain || "—"}</dd>
+                <dd>{transaction.email_domain || "N/A"}</dd>
               </div>
               <div>
                 <dt>Authorised at</dt>

@@ -184,7 +184,7 @@ export function Overview() {
           }
           actions={
             <span className="panel-note">
-              {data ? `${formatNumber(data.kpis.transactions.value)} total` : "—"}
+              {data ? `${formatNumber(data.kpis.transactions.value)} total` : "N/A"}
             </span>
           }
         >
@@ -480,7 +480,7 @@ export function Overview() {
 
       <footer className="page-foot">
         <span>
-          <ClockIcon size={13} /> Snapshot {data ? formatDateTime(data.generated_at) : "—"}
+          <ClockIcon size={13} /> Snapshot {data ? formatDateTime(data.generated_at) : "N/A"}
         </span>
         <span>{data?.label_metrics ? `Detection precision ${formatPercent(data.label_metrics.precision)} · recall ${formatPercent(data.label_metrics.recall)}` : "Labels unavailable for this window"}</span>
         <span>
