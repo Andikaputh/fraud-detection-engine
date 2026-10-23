@@ -4,6 +4,8 @@
 
 **Live demo:** [sentinel-fraud-engine.fly.dev](https://sentinel-fraud-engine.fly.dev/) (Fly.io, Singapore; synthetic data)
 
+[![Verify, publish, and deploy](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml/badge.svg)](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml)
+
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
 The repository contains the full working system: the FastAPI service, the anomaly model and rule engine, the simulator and optional Kafka adapter, the SQLite/Postgres persistence layer, the React 19 console, tests, a trained model artifact, a model card, and deployment files for Docker, Render, and Fly.io.
@@ -492,6 +494,23 @@ fly secrets set TELEGRAM_TOKEN=... CHAT_ID=...
 ```
 
 The app and volume already exist for the reference deployment. Routine updates need only `fly deploy --ha=false`. The config keeps one machine running to preserve the in-process simulator and SSE stream; check Fly billing for an always-on 1 GB machine.
+
+### GitHub Actions
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) runs on pushes to `main`, published releases, and manual dispatches. It:
+
+1. Runs the backend tests and the console production build.
+2. Builds a `linux/amd64` image and publishes it to `ghcr.io/andikaputh/fraud-detection-engine` with `latest`, `sha-*`, and release tags.
+3. Deploys the commit to Fly.io when `FLY_API_TOKEN` is configured.
+4. Waits for `/api/v1/health` to return `200` and records a GitHub deployment.
+
+Add the repository secret `FLY_API_TOKEN` under **Settings > Secrets and variables > Actions**. Create a one-year, app-scoped token with:
+
+```bash
+fly tokens create deploy -a sentinel-fraud-engine -n github-actions -x 8760h
+```
+
+Until the secret exists, the publish job still runs and the Fly step is skipped with a warning. The GHCR package is private by default; set its visibility to public in the package settings if you want anonymous pulls. The Fly deployment builds from source, so it does not depend on GHCR registry credentials.
 
 ### Railway / other PaaS
 
