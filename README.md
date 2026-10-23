@@ -2,7 +2,7 @@
 
 **Real-time transaction risk decisioning, alert triage, and model observability as a single deployable application.**
 
-**Live demo:** [sentinel-fraud-andikaputh.fly.dev](https://sentinel-fraud-andikaputh.fly.dev/) (Fly.io, Singapore; synthetic data)
+**Live demo:** [sentinel-fraud-engine.fly.dev](https://sentinel-fraud-engine.fly.dev/) (Fly.io, Singapore; synthetic data)
 
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
@@ -472,11 +472,11 @@ The blueprint uses the free plan. Two constraints matter:
 
 ### Fly.io
 
-The reference deployment runs at **https://sentinel-fraud-andikaputh.fly.dev/** on a 1 GB machine in Singapore with a 1 GB volume.
+The reference deployment runs at **https://sentinel-fraud-engine.fly.dev/** on a 1 GB machine in Singapore with a 1 GB volume.
 
 ```bash
 fly auth login
-fly apps create sentinel-fraud-andikaputh
+fly apps create sentinel-fraud-engine
 fly volumes create sentinel_data --region sin --size 1
 fly deploy --ha=false
 fly status
