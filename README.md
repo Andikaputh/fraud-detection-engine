@@ -2,6 +2,8 @@
 
 **Real-time transaction risk decisioning, alert triage, and model observability as a single deployable application.**
 
+**Live demo:** [sentinel-fraud-andikaputh.fly.dev](https://sentinel-fraud-andikaputh.fly.dev/) (Fly.io, Singapore; synthetic data)
+
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
 The repository contains the full working system: the FastAPI service, the anomaly model and rule engine, the simulator and optional Kafka adapter, the SQLite/Postgres persistence layer, the React 19 console, tests, a trained model artifact, a model card, and deployment files for Docker, Render, and Fly.io.
@@ -470,15 +472,26 @@ The blueprint uses the free plan. Two constraints matter:
 
 ### Fly.io
 
+The reference deployment runs at **https://sentinel-fraud-andikaputh.fly.dev/** on a 1 GB machine in Singapore with a 1 GB volume.
+
 ```bash
 fly auth login
-fly launch --no-deploy --copy-config
+fly apps create sentinel-fraud-andikaputh
 fly volumes create sentinel_data --region sin --size 1
-fly secrets set SENTINEL_API_KEY=change-me   # optional but recommended
-fly deploy
+fly deploy --ha=false
+fly status
 ```
 
-The supplied [`fly.toml`](fly.toml) mounts a 1 GB volume at `/app/data`, uses a 1 GB machine, and keeps at least one machine running so the simulator stays live. Rename the app in `fly.toml` if the default name is taken.
+For a fork, change `app` in [`fly.toml`](fly.toml) to a unique name, then use that name in `fly apps create` and `fly deploy --app <your-app-name> --ha=false`. The supplied [`fly.toml`](fly.toml) mounts a 1 GB volume at `/app/data`, uses a 1 GB machine, and keeps at least one machine running so the simulator stays live.
+
+Optional secrets:
+
+```bash
+fly secrets set SENTINEL_API_KEY=change-me
+fly secrets set TELEGRAM_TOKEN=... CHAT_ID=...
+```
+
+The app and volume already exist for the reference deployment. Routine updates need only `fly deploy --ha=false`. The config keeps one machine running to preserve the in-process simulator and SSE stream; check Fly billing for an always-on 1 GB machine.
 
 ### Railway / other PaaS
 

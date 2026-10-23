@@ -1,8 +1,8 @@
-﻿# Rename the app before deploying if the name is already taken:
+# Rename the app before deploying if the name is already taken:
 #   fly apps create <your-unique-name>
 # and update `app` below. Then create the volume once:
 #   fly volumes create sentinel_data --region sin --size 1
-app = "sentinel-fraud-engine"
+app = "sentinel-fraud-andikaputh"
 primary_region = "sin"
 
 [build]
