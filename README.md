@@ -5,6 +5,7 @@
 **Live demo:** [sentinel-fraud-engine.fly.dev](https://sentinel-fraud-engine.fly.dev/) (Fly.io, Singapore; synthetic data)
 
 [![Verify, publish, and deploy](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml/badge.svg)](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3ddc97.svg)](LICENSE)
 
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
@@ -668,6 +669,8 @@ The honest summary: Sentinel demonstrates the **shape** of a commercial fraud pl
 
 ## License and attribution
 
-No license file is included. Add one before redistributing or using this repository commercially. The model, data generator, UI, and copy are original work created for this project.
+MIT License. See [LICENSE](LICENSE).
+
+The model, data generator, UI, and copy are original work created for this project.
 
 The product name, tenant, merchants, customers, and transactions are fictional. Any resemblance to a real payment company is coincidental.

@@ -95,6 +95,7 @@ jobs:
             org.opencontainers.image.description=Real-time fraud decisioning engine with a live operations console.
             org.opencontainers.image.source=https://github.com/Andikaputh/fraud-detection-engine
             org.opencontainers.image.url=https://sentinel-fraud-engine.fly.dev/
+            org.opencontainers.image.licenses=MIT
 
       - name: Build and push image
         id: build
