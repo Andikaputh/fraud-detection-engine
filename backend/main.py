@@ -171,7 +171,7 @@ def create_app() -> FastAPI:
 
     application.include_router(api_router)
 
-    @application.get("/", include_in_schema=False)
+    @application.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
     def root():
         if DIST_DIR.exists():
             return FileResponse(DIST_DIR / "index.html")
@@ -190,7 +190,7 @@ def create_app() -> FastAPI:
         if assets.exists():
             application.mount("/assets", StaticFiles(directory=assets), name="assets")
 
-        @application.get("/{full_path:path}", include_in_schema=False)
+        @application.api_route("/{full_path:path}", methods=["GET", "HEAD"], include_in_schema=False)
         def spa(full_path: str):
             if full_path.startswith(("api/", "docs", "redoc", "openapi.json")):
                 return JSONResponse({"detail": "Not Found"}, status_code=404)
