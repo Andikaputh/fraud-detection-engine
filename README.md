@@ -2,14 +2,14 @@
 
 **Real-time transaction risk decisioning, alert triage, and model observability as a single deployable application.**
 
-**Live demo:** [sentinel-fraud-engine.fly.dev](https://sentinel-fraud-engine.fly.dev/) (Fly.io, Singapore; synthetic data)
+**Live demo:** [sentinel-fraud-ops.onrender.com](https://sentinel-fraud-ops.onrender.com/) (Render, Singapore; synthetic data)
 
 [![Verify, publish, and deploy](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml/badge.svg)](https://github.com/Andikaputh/fraud-detection-engine/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3ddc97.svg)](LICENSE)
 
 Sentinel is the fraud decision layer for a fictional payments company, **Meridian Pay**. It ingests card-authorisation events, computes a behavioural anomaly score and an explainable policy score in the request path, returns `allow` / `review` / `block`, and persists the complete evidence behind every decision. The React console is an operations surface, not a dashboard bolted onto a notebook: alerts can be assigned and resolved, thresholds can be changed at runtime, historical data can be replayed, and the live feed is pushed over Server-Sent Events.
 
-The repository contains the full working system: the FastAPI service, the anomaly model and rule engine, the simulator and optional Kafka adapter, the SQLite/Postgres persistence layer, the React 19 console, tests, a trained model artifact, a model card, and deployment files for Docker, Render, and Fly.io.
+The repository contains the full working system: the FastAPI service, the anomaly model and rule engine, the simulator and optional Kafka adapter, the SQLite/Postgres persistence layer, the React 19 console, tests, a trained model artifact, a model card, and deployment files for Docker, Render, and a Railway-style Procfile.
 
 ---
 
@@ -56,7 +56,7 @@ The repository contains the full working system: the FastAPI service, the anomal
 | Alerting | Alert creation, severity, assignment, status transitions, audit history, Telegram/webhook delivery |
 | Console | React 19, TypeScript, Vite, hand-written CSS, custom SVG charts, no charting dependency |
 | Operations | Background historical backfill, live progress banner, retention worker, health/readiness, audit log |
-| Deployment | Multi-stage Dockerfile, Compose, Render Blueprint, Fly.io config, Railway-style `Procfile` |
+| Deployment | Multi-stage Dockerfile, Compose, Render Blueprint, Railway-style `Procfile` |
 | Testing | 13 backend tests covering the API, scoring invariants, thresholds, and ingestion |
 
 The default tenant and the transaction data are synthetic. There is no real card-network traffic, no PCI data, and no customer data in this repository.
@@ -461,40 +461,23 @@ Compose:
 docker compose up -d --build
 ```
 
-### Render (Blueprint)
+### Render (free tier)
+
+The live demo runs at **https://sentinel-fraud-ops.onrender.com/** on Render Free in Singapore.
 
 1. Push this repository to GitHub.
-2. In Render, choose **New → Blueprint** and connect the repository. Render reads [`render.yaml`](render.yaml).
+2. In Render, choose **New > Blueprint** and connect the repository. Render reads [`render.yaml`](render.yaml).
 3. Apply the blueprint. The service builds the Dockerfile and uses `/api/v1/health` as the health check.
 4. Wait for the first deploy. The API is healthy immediately; the console shows the historical backfill progress banner while the seven-day baseline is scored.
 
-The blueprint uses the free plan. Two constraints matter:
+The blueprint is deliberately sized for the free tier:
 
-- Free instances have 512 MB RAM. The full backfill is close to that ceiling even with writer back-pressure. If the instance restarts during seeding, use a 1 GB plan, or deploy the supplied Fly.io configuration which uses a 1 GB machine.
-- Free instances do not provide persistent disks. The SQLite database is ephemeral and is recreated after a restart or redeploy. That is acceptable for a portfolio demo; for persistence, attach a paid disk or set `DATABASE_URL` to managed Postgres.
-
-### Fly.io
-
-The reference deployment runs at **https://sentinel-fraud-engine.fly.dev/** on a 1 GB machine in Singapore with a 1 GB volume.
-
-```bash
-fly auth login
-fly apps create sentinel-fraud-engine
-fly volumes create sentinel_data --region sin --size 1
-fly deploy --ha=false
-fly status
-```
-
-For a fork, change `app` in [`fly.toml`](fly.toml) to a unique name, then use that name in `fly apps create` and `fly deploy --app <your-app-name> --ha=false`. The supplied [`fly.toml`](fly.toml) mounts a 1 GB volume at `/app/data`, uses a 1 GB machine, and keeps at least one machine running so the simulator stays live.
-
-Optional secrets:
-
-```bash
-fly secrets set SENTINEL_API_KEY=change-me
-fly secrets set TELEGRAM_TOKEN=... CHAT_ID=...
-```
-
-The app and volume already exist for the reference deployment. Routine updates need only `fly deploy --ha=false`. The config keeps one machine running to preserve the in-process simulator and SSE stream; check Fly billing for an always-on 1 GB machine.
+- 512 MB RAM and 0.1 CPU. The hosted backfill is capped at 20,000 rows with `SEED_HISTORY_ROWS`; the full 92,400-row baseline remains the local default.
+- No persistent disk. SQLite is ephemeral and is recreated after a restart or redeploy. That is acceptable for this portfolio demo; use Render Postgres or another managed database if you need persistence.
+- Free web services spin down after 15 minutes of inactivity. [`.github/workflows/keepalive.yml`](.github/workflows/keepalive.yml) pings the health endpoint every five minutes so the demo stays warm. One always-on free service uses about 730 of the 750 monthly instance hours. Avoid adding another free service to the same workspace if you want the keepalive to stay within the quota.
+- Render can restart a free instance at any time. The console shows backfill progress instead of an empty dashboard when that happens.
+- Render's free Postgres expires after 30 days, so it is not a long-term free persistence option.
+- If the service name is taken, change `name` in [`render.yaml`](render.yaml) and update `PUBLIC_BASE_URL`, the frontend metadata, and the keepalive URL.
 
 ### GitHub Actions
 
@@ -502,16 +485,12 @@ The app and volume already exist for the reference deployment. Routine updates n
 
 1. Runs the backend tests and the console production build.
 2. Builds a `linux/amd64` image and publishes it to `ghcr.io/andikaputh/fraud-detection-engine` with `latest`, `sha-*`, and release tags.
-3. Deploys the commit to Fly.io when `FLY_API_TOKEN` is configured.
-4. Waits for `/api/v1/health` to return `200` and records a GitHub deployment.
+3. Waits for Render to serve the pushed commit and records a GitHub deployment.
+4. Skips deployment verification with a warning until the Render service exists.
 
-Add the repository secret `FLY_API_TOKEN` under **Settings > Secrets and variables > Actions**. Create a one-year, app-scoped token with:
+Render auto-deploys from `main` because `autoDeploy: true` is set in [`render.yaml`](render.yaml). The workflow does not need a hosting token. The health endpoint exposes `RENDER_GIT_COMMIT`, which lets the workflow confirm that the live service is serving the same commit. The GHCR package is public and can be pulled anonymously.
 
-```bash
-fly tokens create deploy -a sentinel-fraud-engine -n github-actions -x 8760h
-```
-
-Until the secret exists, the publish job still runs and the Fly step is skipped with a warning. The GHCR package is private by default; set its visibility to public in the package settings if you want anonymous pulls. The Fly deployment builds from source, so it does not depend on GHCR registry credentials.
+The keepalive workflow runs every five minutes. If GitHub disables scheduled workflows after 60 days of repository inactivity, re-enable it or point a free external monitor such as UptimeRobot at the health endpoint.
 
 ### Railway / other PaaS
 
@@ -540,9 +519,8 @@ No migration step is required: the schema is created on boot. For production, re
 
 | Setup | Suitable for |
 | --- | --- |
-| Fly.io, 1 GB, 1 volume | Best default for the full demo |
+| Render Free, 512 MB, ephemeral | Default portfolio demo, with the keepalive workflow |
 | Render Starter, 1 GB, disk or Postgres | Managed deployment with persistence |
-| Render Free, 512 MB, ephemeral | UI/portfolio demo; expect re-seeding after restarts |
 | Docker on a VPS | Full control; add TLS and a reverse proxy |
 | Kubernetes / multi-replica | Requires replacing the in-process bus and simulator with shared infrastructure |
 
@@ -643,7 +621,6 @@ The honest summary: Sentinel demonstrates the **shape** of a commercial fraud pl
 ├── Dockerfile
 ├── docker-compose.yml
 ├── render.yaml
-├── fly.toml
 ├── Procfile
 ├── requirements.txt
 └── .env.example

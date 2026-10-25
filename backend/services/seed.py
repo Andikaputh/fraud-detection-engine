@@ -15,6 +15,7 @@ from datetime import timedelta
 
 from sqlalchemy import func
 
+from backend.config import settings
 from backend.core.logging import get_logger
 from backend.core.timeutil import utcnow
 from backend.database import session_scope
@@ -29,8 +30,8 @@ logger = get_logger("sentinel.seed")
 # scale. A dense 48-hour block followed by a sparse tail produced a visible cliff
 # in the 7-day chart and model drift, which looked like an outage rather than a
 # deliberate retention boundary.
-HISTORY_DAYS = 7
-HISTORY_ROWS = 92_400
+HISTORY_DAYS = max(settings.seed_history_days, 1)
+HISTORY_ROWS = max(settings.seed_history_rows, 1)
 SEED_CHUNK_SIZE = 6_000
 
 

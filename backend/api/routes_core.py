@@ -49,6 +49,7 @@ def health() -> dict[str, Any]:
         "status": "ok" if db_status == "ok" else "degraded",
         "service": settings.service_name,
         "version": settings.version,
+        "commit": os.getenv("RENDER_GIT_COMMIT") or os.getenv("GIT_COMMIT") or None,
         "environment": settings.environment,
         "database": db_status,
         "model_version": model_version,

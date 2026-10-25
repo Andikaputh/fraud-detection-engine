@@ -1,0 +1,31 @@
+name: Keep Render warm
+
+on:
+  schedule:
+    # Every five minutes. Render Free spins down after 15 minutes of inactivity.
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Ping live health endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Wake and check the service
+        run: |
+          url="https://sentinel-fraud-ops.onrender.com/api/v1/health"
+          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 --retry 2 --retry-delay 10 "$url" || true)
+          if [ "$status" = "200" ]; then
+            echo "Render is warm and healthy."
+          else
+            echo "Render returned $status. The service may not exist yet, or it is still starting."
+          fi

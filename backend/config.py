@@ -68,6 +68,11 @@ class Settings:
     seed_demo_data: bool = field(default_factory=lambda: _bool("SEED_DEMO_DATA", True))
     reset_on_start: bool = field(default_factory=lambda: _bool("RESET_ON_START", False))
     retention_days: int = field(default_factory=lambda: _int("RETENTION_DAYS", 30))
+    # The full seven-day baseline is useful locally but too heavy for a 512 MB
+    # free instance. Small hosts can lower the row count without changing the
+    # time windows or the scoring path.
+    seed_history_rows: int = field(default_factory=lambda: _int("SEED_HISTORY_ROWS", 92_400))
+    seed_history_days: int = field(default_factory=lambda: _int("SEED_HISTORY_DAYS", 7))
 
     # Model
     model_dir: Path = field(default_factory=lambda: Path(os.getenv("MODEL_DIR", str(ROOT_DIR / "artifacts"))))

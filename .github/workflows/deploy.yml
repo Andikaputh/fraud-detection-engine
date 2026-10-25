@@ -18,8 +18,7 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/andikaputh/fraud-detection-engine
-  FLY_APP: sentinel-fraud-engine
-  PUBLIC_URL: https://sentinel-fraud-engine.fly.dev
+  PUBLIC_URL: https://sentinel-fraud-ops.onrender.com
 
 jobs:
   verify:
@@ -94,7 +93,7 @@ jobs:
             org.opencontainers.image.title=Sentinel Fraud Engine
             org.opencontainers.image.description=Real-time fraud decisioning engine with a live operations console.
             org.opencontainers.image.source=https://github.com/Andikaputh/fraud-detection-engine
-            org.opencontainers.image.url=https://sentinel-fraud-engine.fly.dev/
+            org.opencontainers.image.url=https://sentinel-fraud-ops.onrender.com/
             org.opencontainers.image.licenses=MIT
 
       - name: Build and push image
@@ -122,55 +121,52 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
-    name: Deploy to Fly.io
+    name: Verify Render deployment
     needs: publish
+    if: github.event_name != 'release'
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Check Fly credentials
-        id: fly
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Check Render availability
+        id: render
         run: |
-          if [ -z "$FLY_API_TOKEN" ]; then
-            echo "::warning::FLY_API_TOKEN is not configured. Add it under Settings > Secrets and variables > Actions. Skipping the Fly deployment."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Set up flyctl
-        if: steps.fly.outputs.enabled == 'true'
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Deploy production machine
-        id: deploy
-        if: steps.fly.outputs.enabled == 'true'
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: flyctl deploy --remote-only --ha=false --app "$FLY_APP" --yes
-
-      - name: Verify live health
-        if: steps.deploy.outcome == 'success'
-        run: |
-          for attempt in $(seq 1 30); do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "$PUBLIC_URL/api/v1/health" || true)
+          status=""
+          for attempt in 1 2 3; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$PUBLIC_URL/api/v1/health" || true)
             if [ "$status" = "200" ]; then
-              echo "Health check passed on attempt $attempt."
-              exit 0
+              break
             fi
-            echo "Attempt $attempt returned $status; retrying in 5 seconds."
+            echo "Render health attempt $attempt returned $status."
             sleep 5
           done
-          echo "::error::Health check did not pass within 150 seconds."
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Render is not reachable at $PUBLIC_URL yet. Create the Blueprint first, then re-run this workflow."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for Render to serve this commit
+        if: steps.render.outputs.enabled == 'true'
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          for attempt in $(seq 1 90); do
+            body=$(curl -fsS --max-time 30 "$PUBLIC_URL/api/v1/health" || true)
+            read -r health_status commit <<< "$(printf '%s' "$body" | python -c 'import json,sys; d=json.load(sys.stdin); print(d.get("status",""), d.get("commit") or "")' 2>/dev/null || true)"
+            if [ "$health_status" = "ok" ] && [ "$commit" = "$EXPECTED_SHA" ]; then
+              echo "Render is healthy and serving commit $commit."
+              exit 0
+            fi
+            echo "Waiting for Render (attempt $attempt, status ${health_status:-unknown}, live commit ${commit:-unknown})."
+            sleep 10
+          done
+          echo "::error::Render did not serve the expected commit within 15 minutes."
           exit 1
 
       - name: Record GitHub deployment
-        if: steps.deploy.outcome == 'success'
+        if: steps.render.outputs.enabled == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -181,7 +177,7 @@ jobs:
               environment: 'production',
               auto_merge: false,
               required_contexts: [],
-              description: 'Fly.io production deployment',
+              description: 'Render production deployment',
             });
 
             await github.rest.repos.createDeploymentStatus({
@@ -189,7 +185,7 @@ jobs:
               repo: context.repo.repo,
               deployment_id: deployment.data.id,
               state: 'success',
-              environment_url: 'https://sentinel-fraud-engine.fly.dev/',
+              environment_url: 'https://sentinel-fraud-ops.onrender.com/',
               log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              description: 'Deployed to Fly.io',
+              description: 'Deployed to Render',
             });

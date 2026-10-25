@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: sentinel-fraud-engine
+    name: sentinel-fraud-ops
     runtime: docker
     plan: free
     region: singapore
@@ -19,6 +19,15 @@ services:
         value: "0.2"
       - key: SEED_DEMO_DATA
         value: "true"
+      # Render Free has 512 MB RAM. The full 92k-row baseline is too close to
+      # that ceiling, so the hosted demo uses a lighter seven-day baseline.
+      - key: SEED_HISTORY_ROWS
+        value: "20000"
+      - key: SEED_HISTORY_DAYS
+        value: "7"
       - key: RETENTION_DAYS
         value: "7"
-
+      - key: PUBLIC_BASE_URL
+        value: https://sentinel-fraud-ops.onrender.com
+      - key: PYTHONUNBUFFERED
+        value: "1"
