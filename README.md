@@ -632,7 +632,7 @@ The honest summary: Sentinel demonstrates the **shape** of a commercial fraud pl
 
 ## Troubleshooting
 
-**The console shows a backfill banner for a minute.** That is expected on a fresh database. The API is already healthy; the seed is scoring historical events in the background.
+**The console shows a backfill banner for a few minutes on the free instance.** That is expected on a fresh database. The API is already healthy; the seed is scoring historical events in the background.
 
 **The dashboard is empty after a restart.** On an ephemeral host, the SQLite volume was lost. Either attach a persistent volume, use Postgres, or wait for the automatic re-seed.
 
