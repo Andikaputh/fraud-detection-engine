@@ -465,6 +465,8 @@ docker compose up -d --build
 
 The live demo runs at **https://sentinel-fraud-ops.onrender.com/** on Render Free in Singapore.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Andikaputh/fraud-detection-engine)
+
 1. Push this repository to GitHub.
 2. In Render, choose **New > Blueprint** and connect the repository. Render reads [`render.yaml`](render.yaml).
 3. Apply the blueprint. The service builds the Dockerfile and uses `/api/v1/health` as the health check.
