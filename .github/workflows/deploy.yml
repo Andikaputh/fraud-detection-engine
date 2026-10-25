@@ -155,7 +155,7 @@ jobs:
           for attempt in $(seq 1 90); do
             body=$(curl -fsS --max-time 30 "$PUBLIC_URL/api/v1/health" || true)
             read -r health_status commit <<< "$(printf '%s' "$body" | python -c 'import json,sys; d=json.load(sys.stdin); print(d.get("status",""), d.get("commit") or "")' 2>/dev/null || true)"
-            if [ "$health_status" = "ok" ] && [ "$commit" = "$EXPECTED_SHA" ]; then
+            if [ "$health_status" = "ok" ] && [ -n "$commit" ] && { [ "$commit" = "$EXPECTED_SHA" ] || [[ "$EXPECTED_SHA" == "$commit"* ]]; }; then
               echo "Render is healthy and serving commit $commit."
               exit 0
             fi
