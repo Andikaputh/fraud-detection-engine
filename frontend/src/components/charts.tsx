@@ -329,11 +329,17 @@ export function HBarList({
 }
 
 export function RiskGauge({ score, size = 190 }: { score: number; size?: number }) {
-  const color = score >= 80 ? COLORS.red : score >= 55 ? COLORS.amber : score >= 30 ? "#e9c46a" : COLORS.green;
-  const label = score >= 80 ? "High risk" : score >= 55 ? "Elevated" : score >= 30 ? "Watch" : "Low risk";
+  const value = Math.min(Math.max(score, 0), 100);
+  const color = value >= 80 ? COLORS.red : value >= 55 ? COLORS.amber : value >= 30 ? "#e9c46a" : COLORS.green;
+  const label = value >= 80 ? "High risk" : value >= 55 ? "Elevated" : value >= 30 ? "Watch" : "Low risk";
+  // The arc is a semicircle centred at (60, 62) with radius 50. Place the
+  // endpoint marker on that arc instead of interpolating along the baseline.
+  const angle = Math.PI * (1 - value / 100);
+  const markerX = 60 + 50 * Math.cos(angle);
+  const markerY = 62 - 50 * Math.sin(angle);
   return (
     <div className="gauge" style={{ width: size }}>
-      <svg viewBox="0 0 120 74" width={size} height={size * 0.616} role="img" aria-label={`Risk score ${score} of 100`}>
+      <svg viewBox="0 0 120 74" width={size} height={size * 0.616} role="img" aria-label={`Risk score ${value} of 100`}>
         <path d="M10 62 A 50 50 0 0 1 110 62" fill="none" stroke="#1b2028" strokeWidth="9" strokeLinecap="round" pathLength={100} />
         <path
           d="M10 62 A 50 50 0 0 1 110 62"
@@ -342,13 +348,13 @@ export function RiskGauge({ score, size = 190 }: { score: number; size?: number 
           strokeWidth="9"
           strokeLinecap="round"
           pathLength={100}
-          strokeDasharray={`${Math.max(score, 1)} 100`}
+          strokeDasharray={`${Math.max(value, 1)} 100`}
           style={{ transition: "stroke-dasharray 400ms ease" }}
         />
-        <circle cx={10 + (score / 100) * 100} cy={62} r="3.6" fill="#0e1116" stroke={color} strokeWidth="2.4" />
+        <circle cx={markerX} cy={markerY} r="3.6" fill="#0e1116" stroke={color} strokeWidth="2.4" />
       </svg>
       <div className="gauge-center">
-        <strong style={{ color }}>{score}</strong>
+        <strong style={{ color }}>{value}</strong>
         <span>{label}</span>
       </div>
       <div className="gauge-scale">
